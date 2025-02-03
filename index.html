@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="SocialTechStore" />
+        <meta name="author" content="Nickolas Bressy" />
+        <title>SocialTechStore - Loja de Apps</title>
+        <!-- Favicon-->
+        <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+        <!-- Bootstrap icons-->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
+		<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="css/styles.css" rel="stylesheet" />
+        <link href="css/search.css" rel="stylesheet" />
+		<link href="css/loading.css" rel="stylesheet" />
+    </head>
+    <body>
+        <!-- Navigation-->
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container px-4 px-lg-5">
+                <a class="navbar-brand" href="#!">SocialTechStore</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+                        <li class="nav-item"><a class="nav-link active" aria-current="page" href="#!">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#!">About</a></li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Publish App</a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href="#!">How to Publish App</a></li>
+                                <li><hr class="dropdown-divider" /></li>
+                                <li><a class="dropdown-item" href="#!">Telegram</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <form id="search-form" class="d-flex" onsubmit="submitSearch(event)">
+                      <input type="text" id="search-input" placeholder="Search Apps..." class="form-control search-input" />
+                    </form>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- Header-->
+        <header class="bg-dark py-5">
+            <div class="container px-4 px-lg-5 my-5">
+                <div class="text-center text-white">
+                    <h1 class="display-4 fw-bolder">Tech Style Store</h1>
+                    <p class="lead fw-normal text-white-50 mb-0">Non-Profit App Store</p>
+                </div>
+            </div>
+        </header>
+		
+		<div class="loading-spinner" id="loading-spinner">
+            <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Carregando...</span>
+            </div>
+        </div>
+        
+        <section class="py-5">
+            <div class="container px-4 px-lg-5 mt-5">
+                <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center" id="app-list">
+                    <!-- Apps serão carregados aqui dinamicamente -->
+                </div>
+                <div id="paginator" class="text-center mt-4"></div>
+            </div>
+        </section>
+
+        <!-- Footer-->
+        <footer class="py-5 bg-dark">
+            <div class="container"><p class="m-0 text-center text-white">Copyright &copy; SocialTechStore 2025</p></div>
+        </footer>
+
+        <!-- Bootstrap core JS-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Core theme JS-->
+        <script>
+          const apiUrl = 'https://script.google.com/macros/s/AKfycbzWzHdtI4Jucx6yHHtQYk-Hske1YEjOf2reww2A1Q_U1bXTDd77v_lC7MxbEiJHNVY4/exec';
+          const appsPerPage = 6;
+          let currentPage = 1;
+          let allApps = [];
+
+          fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+              allApps = data;
+              displayApps(currentPage);
+              setupPagination();
+              document.getElementById('loading-spinner').style.display = 'none';
+            })
+            .catch(error => {
+              console.error('Erro ao buscar lista de aplicativos:', error);
+              document.getElementById('loading-spinner').style.display = 'none';
+            });
+
+          function displayApps(page) {
+            const appList = document.getElementById('app-list');
+            appList.innerHTML = '';
+
+            const start = (page - 1) * appsPerPage;
+            const end = start + appsPerPage;
+            const appsToDisplay = allApps.slice(start, end);
+
+            appsToDisplay.forEach(app => {
+              const appCard = createAppCard(app);
+              appList.appendChild(appCard);
+            });
+          }
+
+          function createAppCard(app) {
+            const appCard = document.createElement('div');
+            appCard.className = 'col mb-5';
+            const card = document.createElement('div');
+            card.className = 'card h-100';
+            
+            const img = document.createElement('img');
+            img.className = 'card-img-top';
+            img.src = app.imagem;
+            img.alt = app.nome;
+            
+            const cardBody = document.createElement('div');
+            cardBody.className = 'card-body p-4';
+            const textCenter = document.createElement('div');
+            textCenter.className = 'text-center';
+            const appName = document.createElement('h5');
+            appName.className = 'fw-bolder';
+            appName.innerText = app.nome;
+            const appCategory = document.createElement('p');
+            appCategory.className = 'text-muted';
+            appCategory.innerText = app.categoria;
+
+            textCenter.appendChild(appName);
+            textCenter.appendChild(appCategory);
+            cardBody.appendChild(textCenter);
+            
+            const cardFooter = document.createElement('div');
+            cardFooter.className = 'card-footer p-4 pt-0 border-top-0 bg-transparent';
+            const footerText = document.createElement('div');
+            footerText.className = 'text-center';
+            const appLink = document.createElement('a');
+            appLink.className = 'btn btn-outline-dark mt-auto';
+            appLink.href = 'app.html?id=' + app.id;
+            appLink.innerText = 'View Details';
+            footerText.appendChild(appLink);
+            cardFooter.appendChild(footerText);
+            
+            card.appendChild(img);
+            card.appendChild(cardBody);
+            card.appendChild(cardFooter);
+            appCard.appendChild(card);
+            return appCard;
+          }
+
+          function setupPagination() {
+            const paginator = document.getElementById('paginator');
+            paginator.innerHTML = '';
+
+            const totalPages = Math.ceil(allApps.length / appsPerPage);
+
+            for (let i = 1; i <= totalPages; i++) {
+              const pageButton = document.createElement('button');
+              pageButton.innerText = i;
+              pageButton.disabled = (i === currentPage);
+              pageButton.onclick = function() {
+                currentPage = i;
+                displayApps(currentPage);
+                setupPagination();
+              };
+              paginator.appendChild(pageButton);
+            }
+          }
+
+          document.getElementById('search-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const query = document.getElementById('search-input').value.toLowerCase();
+
+            const searchUrl = `${apiUrl}?name=${encodeURIComponent(query)}`;
+
+            fetch(searchUrl)
+              .then(response => response.json())
+              .then(filteredApps => {
+                displayFilteredApps(filteredApps);
+              })
+              .catch(error => {
+                console.error('Erro ao buscar aplicativos filtrados:', error);
+              });
+          });
+
+          function displayFilteredApps(filteredApps) {
+            const appList = document.getElementById('app-list');
+            appList.innerHTML = '';
+
+            filteredApps.slice(0, appsPerPage).forEach(app => {
+              const appCard = createAppCard(app);
+              appList.appendChild(appCard);
+            });
+
+            setupFilteredPagination(filteredApps);
+          }
+
+          function setupFilteredPagination(filteredApps) {
+            const paginator = document.getElementById('paginator');
+            paginator.innerHTML = '';
+
+            const totalPages = Math.ceil(filteredApps.length / appsPerPage);
+
+            for (let i = 1; i <= totalPages; i++) {
+              const pageButton = document.createElement('button');
+              pageButton.innerText = i;
+              pageButton.disabled = (i === currentPage);
+              pageButton.onclick = function() {
+                currentPage = i;
+                const start = (currentPage - 1) * appsPerPage;
+                const end = start + appsPerPage;
+                displayFilteredApps(filteredApps.slice(start, end));
+              };
+              paginator.appendChild(pageButton);
+            }
+          }
+        </script>
+    </body>
+</html>
